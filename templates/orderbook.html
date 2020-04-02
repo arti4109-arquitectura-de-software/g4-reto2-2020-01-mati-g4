@@ -1,0 +1,118 @@
+{% extends "main.html" %}
+{% block content %}
+
+
+	
+	<div class="row top-menu">
+	<div class="col-md-6">
+		<a href="{{url_for('newOrderBook')}}">
+			<span class="glyphicon glyphicon-home" aria-hidden="true"></span>NUEVA ORDEN
+		</a>
+	</div>
+	<div class="col-md-6 text-right">
+		<a href="{{url_for('gdisconnect')}}">
+			<span class="glyphicon glyphicon-home" aria-hidden="true"></span>INDEX
+		</a>
+		
+	</div>
+</div>
+	<div class="row divider green">
+		<div class="col-md-12"></div>
+	</div>
+	<div class="row banner menu">
+		<div class="col-md-11 col-md-offset-1 padding-none">
+			<h1>Libro de Ordenes
+			<figure class="creator">
+				<img src="{{ creator.picture}}">
+				<figcaption>{{ creator.name }}</figcaption>
+			</figure>
+			</h1>
+
+		</div>
+	</div>
+
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12">
+				<h3 class='section-heading align items center'> Ordenes de Compra </h3>
+			</div>
+		</div>
+		<br>
+		<div class="form-group row align items center">
+			<div class="col-sm-3">
+				<h5 class='section-heading'> ID Orden </h5>
+			</div>
+			<div class="col-sm-3">
+				<h5 class='section-heading'> Fecha </h5>
+			</div>
+			<div class="col-sm-3">
+				<h5 class='section-heading'> ID Activo </h5>
+			</div>
+			<div class="col-sm-3">
+				<h5 class='section-heading'> Cantidad </h5>
+			</div>
+		</div>
+		{% if buyorders %}
+			{% for buyorder in buyorders %}
+				<div class="form-group row align items center">
+					<div class="col-sm-3">
+						<h5 class='section-heading'> {{ buyorder.id }} </h5>
+					</div>
+					<div class="col-sm-3">
+						<p> {{ buyorder.creation_date }}</p>
+					</div>
+					<div class="col-sm-3">
+						<p>{{ buyorder.asset_id }}</p>
+					</div>
+					<div class="col-sm-3">
+						<p>{{ buyorder.ammount }}</p>
+					</div>
+				</div>
+			{% endfor %}
+		{% endif %}
+	
+		<br><br>
+		
+		<div class="form-group row align items center">
+			<div class="col-md-12">
+				<h3 class='section-heading align items center'> Ordenes de Venta </h3>
+			</div>
+		</div>
+		<br>
+		<div class="form-group row align items center">
+			<div class="col-sm-3">
+				<h5 class='section-heading'> ID Orden </h5>
+			</div>
+			<div class="col-sm-3">
+				<h5 class='section-heading'> Fecha </h5>
+			</div>
+			<div class="col-sm-3">
+				<h5 class='section-heading'> ID Activo </h5>
+			</div>
+			<div class="col-sm-3">
+				<h5 class='section-heading'> Cantidad </h5>
+			</div>
+		</div>
+		{% if sellorders %}
+			{% for sellorder in sellorders %}
+				<div class="form-group row align items center">
+					<div class="col-sm-3">
+						<h5 class='section-heading'> {{ sellorder.id }} </h5>
+					</div>
+					<div class="col-sm-3">
+						<p> {{ sellorder.creation_date }}</p>
+					</div>
+					<div class="col-sm-3">
+						<p>{{ sellorder.asset_id }}</p>
+					</div>
+					<div class="col-sm-3">
+						<p>{{ sellorder.ammount }}</p>
+					</div>
+				</div>
+			{% endfor %}
+		{% endif %}
+	
+	</div>
+	
+	{%endblock%}
+	
