@@ -3,41 +3,46 @@
 
 <div class="row top-menu">
 	<div class="col-md-6">
-		<a href="{{url_for('newOrderBook')}}">
-			<span class="glyphicon glyphicon-home" aria-hidden="true"></span>NUEVA ORDEN
+		<a href="{{url_for('orderBook')}}">
+			<span class="glyphicon glyphicon-home" aria-hidden="true"></span>LIBRO DE ORDENES
 		</a>
 	</div>
 	<div class="col-md-6 text-right">
 		<a href="{{url_for('gdisconnect')}}">
-			<span class="glyphicon glyphicon-home" aria-hidden="true"></span>INDEX
-		</a>
-		
+			<span class="glyphicon glyphicon-home" aria-hidden="true"></span>LOGOUT
+		</a>	
 	</div>
 </div>
-	<div class="row divider green">
-		<div class="col-md-12"></div>
-	</div>
-	<div class="row banner menu">
-		<div class="col-md-11 col-md-offset-1 padding-none">
-			<h1>Nueva Orden
-			<figure class="creator">
-				<img src="{{ creator.picture}}">
-				<figcaption>{{ creator.name }}</figcaption>
-			</figure>
-			</h1>
 
-		</div>
-	</div>
+<div class="row divider green">
+	<div class="col-md-12"></div>
+</div>
+<div class="row banner menu">
+	<div class="col-md-11 col-md-offset-1 padding-none">
+		<h1>Nueva Orden
+		<figure class="creator">
+			<img src="{{ creator.picture}}">
+			<figcaption>{{ creator.name }}</figcaption>
+		</figure>
+		</h1>
 
-	<div class="row divider green">
-		<div class="col-md-12"></div>
 	</div>
-	<div class="row banner menu">
-		<div class="col-md-11 col-md-offset-1 padding-none">
-			<h1>Registro Nueva Orden</h1>
-		</div>
-	</div>
-<!--
+</div>
+
+<div class = 'flash'>
+	{% with messages = get_flashed_messages() %}
+{% if messages %}
+
+<ul>
+{% for message in messages %}
+  <li> <strong> {{ message }} </strong> </li>
+{% endfor %}
+</ul>
+{% endif %}
+{% endwith %}
+
+</div>
+
 	<div class="row">
 		<div class="col-md-6 col-md-offset-1 padding-top">
 			<form action="#" method = "post">
@@ -48,7 +53,7 @@
 					<label for="ammount">Cantidad:</label>
 					<input type ="text" class="form-control" maxlength="10" name="ammount" placeholder="Cantidad de la operacion">
 
-					<label for="type">Typo:</label>
+					<label for="type">Tipo:</label>
 					<div class="radio">
 					  <label>
 					    <input type="radio" name="type" id="type1" value="sell">Venta
@@ -58,11 +63,12 @@
 					  <label>
 					    <input type="radio" name="type" id="type2" value="buy">Compra
 					  </label>
+					</div>
 					<button type="submit" class="btn btn-default" id="submit" type="submit">
-					<span class="glyphicon glyphicon-glass" aria-hidden="true"></span>Enviar</button>
+					<span aria-hidden="true"></span>Enviar</button>
 				</div>
 			</form>
 		</div>
-	</div>-->
+	</div>
 {% endblock %}
 

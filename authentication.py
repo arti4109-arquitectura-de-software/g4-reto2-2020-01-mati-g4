@@ -112,9 +112,25 @@ def gconnect():
 
 
     user_id = getUserID(login_session['email'])
-    
+    '''
+    print user_id
+    if user_id is not None:
+        user = getUserInfo(user_id)
+        session.delete(user)
+    asset_name = "Asset_" + str(user_id)
+    asset_id = getAssetID(asset_name)
+    print asset_id
+    if asset_id is not None:    
+        asset = session.query(Asset).filter_by(name = asset_name).first()
+        session.delete(asset)
+    user_id = getUserID(login_session['email'])
+    asset_id = getAssetID(asset_name)
+    print user_id
+    print asset_id
+    '''
     if not user_id:
         user_id = createUser(login_session)
+    login_session['user_id'] = user_id
 
 
     output = ''
@@ -134,9 +150,10 @@ def gdisconnect():
     #Only disconnect a connected user
     access_token = login_session.get('access_token')
     if access_token is None:
-        response = make_response(json.dumps('current user not connected'), 401)
-        response.headers['Content-Type'] = 'application/json'
-        return response
+        #response = make_response(json.dumps('current user not connected'), 401)
+        #response.headers['Content-Type'] = 'application/json'
+        flash('current user not connected')
+        return redirect ('/index')
     #Execute HTTP GET request to revoke current token
     url = ('https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token)
     print 'In gdisconnect access token is %s', access_token
@@ -147,24 +164,20 @@ def gdisconnect():
 
     if result['status'] == '200':
         # reset the users session
-        del login_session['access_token']
-        del login_session['gplus_id']
-        del login_session['username']
-        del login_session['picture']
-        del login_session['email']
-        response = make_response(json.dumps('Succesfully disconnected.'), 200)
-        response.headers ["Content-Type"] = "application/json"
-        return response
+        login_session.clear()
+        #response = make_response(json.dumps('Succesfully disconnected.'), 200)
+        #response.headers ["Content-Type"] = "application/json"
+        #return response
+        flash('Succesfully disconnected.')
+        return redirect ('/index')
     else:
         # reset the users session
-        del login_session['access_token']
-        del login_session['gplus_id']
-        del login_session['username']
-        del login_session['picture']
-        del login_session['email']
-        response = make_response(json.dumps('failed to revoke the token for given user'), 400)
-        response.headers["Content-Type"] = "application/json"
-        return response
+        login_session.clear()
+        #response = make_response(json.dumps('failed to revoke the token for given user'), 400)
+        #response.headers["Content-Type"] = "application/json"
+        #return response
+        flash('failed to revoke the token for given user')
+        return redirect ('/index')
 
 # Begin Helper Methods ---
 def getUserID(email):
@@ -179,8 +192,11 @@ def getUserInfo(user_id):
     return user
 
 def getAssetID(asset_name):
-    asset = session.query(Asset).filter_by(id = asset_name).one()
-    return asset.id
+    try:
+        asset = session.query(Asset).filter_by(name = asset_name).first()
+        return asset.id
+    except:
+        return None
 
 def createUser(login_session):
     #Create a New User
@@ -190,16 +206,18 @@ def createUser(login_session):
     session.add(newUser)
     session.commit()
     user = session.query(User).filter_by(email = login_session['email']).one()
-    #Create new active asociated with the user
+    #Create new asset asociated with the user
     name = "Asset_" + str(user.id)
     newAsset = Asset(name = name, activated = "true")
     session.add(newAsset)
     session.commit()
-    return user.id
-    #Create active owned by the user
+    asset = session.query(Asset).filter_by(name = name).first()
+    print asset.name
+    #Create asset owned by the user
     newOrderBook = OrderBook(type = "buy", ammount = 100000, user_id = user.id, asset_id = asset.id)
     session.add(newOrderBook)
     session.commit()
+    return user.id
 #--- End Helper Methods
 
 @app.route('/')
@@ -207,9 +225,10 @@ def createUser(login_session):
 def index():
     return render_template('index.html')
 
-#New Order_Book
-@app.route('/newOrderbook/')
+#New Order Book
+@app.route('/newOrderbook/', methods=['GET','POST'])
 def newOrderBook():
+    print "#1 newOrderBook"
     #Begin User Validation ---->
     if 'username' not in login_session:
       return redirect ('/login')
@@ -224,41 +243,47 @@ def newOrderBook():
     if result.get('error') is not None:
         response = make_response(json.dumps(result.get('error')), 500)
         response.headers['Content-Type'] = 'application/json'
-        return response
-        #return redirect ('/gdisconnect')
+        return redirect ('/gdisconnect')
     #Verify that access token is used for the intented user
     #Here the token is stored from credentials object and compare with the user_id by the google URL.
     if result['user_id'] != login_session['gplus_id']:
         response = make_response(
             json.dumps("token's user id doesn't match given user_id."), 401)
         response.headers['Content-Type'] = 'application/json'
-        return response
-        #return redirect ('/gdisconnect')
+        return redirect ('/gdisconnect')
     #----> End User Validation 
 
+    print "#2 newOrderBook"
     user_id = login_session['user_id']
     creator = getUserInfo(user_id)
-    asset_id = getAssetID(request.form['asset_name'])
-    ammount = int(request.form['ammount'])
+    print "#3 newOrderBook"
     if request.method == 'POST':
+        print "#4 newOrderBook"
+        asset_id = getAssetID(request.form['asset_name'])
+        ammount = int(request.form['ammount'])
         if request.form['type'] == "buy":
+            if asset_id is None:
+                newAsset = Asset(name = request.form['asset_name'], activated = "true")
+                session.add(newAsset)
+                session.commit()
+                asset_id = getAssetID(newAsset.name)
             newOrderBook = OrderBook(type = request.form['type'], ammount = ammount, user_id = user_id, asset_id = asset_id)
-            session.add(OrderBook)
+            session.add(newOrderBook)
             session.commit()
             flash('Nueva Orden de %s Successfully Created' % (newOrderBook.type))
             return redirect(url_for('orderBook'))
         elif request.form['type'] == "sell":
-            ordersell = session.query(OrderBook).filter_by(asset_name = request.form['asset_id'])
+            ordersell = session.query(OrderBook).filter_by(asset_id = asset_id, user_id = user_id)
             if ordersell is None:
                 flash('No Ha Adquirido el Activo: %s, No Puede Venderlo' % (request.form['asset_name']))
                 return redirect(url_for('orderBook'))
             newOrderBook = OrderBook(type = request.form['type'], ammount = ammount, user_id = user_id, asset_id = asset_id)
-            session.add(OrderBook)
+            session.add(newOrderBook)
             session.commit()
             flash('Nueva Orden de %s Successfully Created' % (newOrderBook.type))
             return redirect(url_for('orderBook'))
-    else:
-        return render_template('newOrderBook.html', creator = creator)
+    print "#4 newOrderBook"
+    return render_template('newOrderBook.html', creator = creator)
 
 #Order_Book
 @app.route('/orderbook/')
@@ -289,18 +314,11 @@ def orderBook():
 
     user_id = login_session['user_id']
     creator = getUserInfo(user_id)
-    print user_id
+ 
     terms = ["type='buy'", "user_id=user_id"]
-    buyorders = session.query(OrderBook).filter_by(user_id = user_id)
+    buyorders = session.query(OrderBook).filter_by(user_id = user_id, type = "buy")
     terms = ["type='sell'", "user_id=user_id"]
-    sellorders = session.query(OrderBook).filter_by(user_id = user_id)
-    print buyorders
-    if buyorders is None:
-        print "Hi"
-
-    for buyorder in buyorders:
-        print buyorder
-        print buyorder.id
+    sellorders = session.query(OrderBook).filter_by(user_id = user_id, type = "sell")
     return render_template('orderbook.html', buyorders = buyorders, sellorders = sellorders, creator = creator)
 
 
@@ -308,6 +326,3 @@ if __name__ == '__main__':
   app.secret_key = 'super_secret_key'
   app.debug = True
   app.run(host = '0.0.0.0', port = 5000)
-
-
-

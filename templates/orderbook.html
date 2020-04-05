@@ -11,7 +11,7 @@
 	</div>
 	<div class="col-md-6 text-right">
 		<a href="{{url_for('gdisconnect')}}">
-			<span class="glyphicon glyphicon-home" aria-hidden="true"></span>INDEX
+			<span class="glyphicon glyphicon-home" aria-hidden="true"></span>LOGOUT
 		</a>
 		
 	</div>
@@ -31,6 +31,20 @@
 		</div>
 	</div>
 
+	<div class = 'flash'>
+		{% with messages = get_flashed_messages() %}
+{% if messages %}
+	
+  <ul>
+  {% for message in messages %}
+	  <li> <strong> {{ message }} </strong> </li>
+  {% endfor %}
+  </ul>
+  {% endif %}
+{% endwith %}
+
+</div>
+
 	<div class="container">
 		<div class="row">
 			<div class="col-md-12">
@@ -39,32 +53,38 @@
 		</div>
 		<br>
 		<div class="form-group row align items center">
-			<div class="col-sm-3">
+			<div class="col-sm-2">
 				<h5 class='section-heading'> ID Orden </h5>
 			</div>
-			<div class="col-sm-3">
+			<div class="col-sm-2">
 				<h5 class='section-heading'> Fecha </h5>
 			</div>
-			<div class="col-sm-3">
+			<div class="col-sm-2">
 				<h5 class='section-heading'> ID Activo </h5>
 			</div>
-			<div class="col-sm-3">
+			<div class="col-sm-2">
+				<h5 class='section-heading'> ID Usuario </h5>
+			</div>
+			<div class="col-sm-2">
 				<h5 class='section-heading'> Cantidad </h5>
 			</div>
 		</div>
 		{% if buyorders %}
 			{% for buyorder in buyorders %}
 				<div class="form-group row align items center">
-					<div class="col-sm-3">
+					<div class="col-sm-2">
 						<h5 class='section-heading'> {{ buyorder.id }} </h5>
 					</div>
-					<div class="col-sm-3">
+					<div class="col-sm-2">
 						<p> {{ buyorder.creation_date }}</p>
 					</div>
-					<div class="col-sm-3">
+					<div class="col-sm-2">
 						<p>{{ buyorder.asset_id }}</p>
 					</div>
-					<div class="col-sm-3">
+					<div class="col-sm-2">
+						<p>{{ buyorder.user_id }}</p>
+					</div>
+					<div class="col-sm-2">
 						<p>{{ buyorder.ammount }}</p>
 					</div>
 				</div>
@@ -80,32 +100,38 @@
 		</div>
 		<br>
 		<div class="form-group row align items center">
-			<div class="col-sm-3">
+			<div class="col-sm-2">
 				<h5 class='section-heading'> ID Orden </h5>
 			</div>
-			<div class="col-sm-3">
+			<div class="col-sm-2">
 				<h5 class='section-heading'> Fecha </h5>
 			</div>
-			<div class="col-sm-3">
+			<div class="col-sm-2">
 				<h5 class='section-heading'> ID Activo </h5>
 			</div>
-			<div class="col-sm-3">
+			<div class="col-sm-2">
+				<h5 class='section-heading'> ID Usuario </h5>
+			</div>
+			<div class="col-sm-2">
 				<h5 class='section-heading'> Cantidad </h5>
 			</div>
 		</div>
 		{% if sellorders %}
 			{% for sellorder in sellorders %}
 				<div class="form-group row align items center">
-					<div class="col-sm-3">
+					<div class="col-sm-2">
 						<h5 class='section-heading'> {{ sellorder.id }} </h5>
 					</div>
-					<div class="col-sm-3">
+					<div class="col-sm-2">
 						<p> {{ sellorder.creation_date }}</p>
 					</div>
-					<div class="col-sm-3">
+					<div class="col-sm-2">
 						<p>{{ sellorder.asset_id }}</p>
 					</div>
-					<div class="col-sm-3">
+					<div class="col-sm-2">
+						<p>{{ sellorder.user_id }}</p>
+					</div>
+					<div class="col-sm-2">
 						<p>{{ sellorder.ammount }}</p>
 					</div>
 				</div>
